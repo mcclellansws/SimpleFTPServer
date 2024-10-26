@@ -583,7 +583,7 @@ private:
   void    abortTransfer();
   bool    makePath( char * fullName, char * param = NULL );
   bool    makeExistsPath( char * path, char * param = NULL );
-  bool    openDir( FTP_DIR * pdir );
+  bool    openDir( FTP_DIR * pdir, const char * dirName = NULL  );
   bool    isDir( char * path );
   uint8_t getDateTime( char * dt, uint16_t * pyear, uint8_t * pmonth, uint8_t * pday,
                        uint8_t * phour, uint8_t * pminute, uint8_t * second );

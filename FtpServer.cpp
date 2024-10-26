@@ -78,14 +78,14 @@ void FtpServer::begin( const char * _user, const char * _pass, const char * _wel
   localIp = NET_CLASS.localIP(); //_localIP == FTP_NULLIP() || (uint32_t) _localIP == 0 ? NET_CLASS.localIP() : _localIP ;
 //  strcpy( user, FTP_USER );
 //  strcpy( pass, FTP_PASS );
-  if( strlen( _user ) > 0 && strlen( _user ) < FTP_CRED_SIZE ) {
+//  if( strlen( _user ) > 0) { //  && strlen( _user ) < FTP_CRED_SIZE ) {
     //strcpy( user, _user );
 	  this->user = _user;
-  }
-  if( strlen( _pass ) > 0 && strlen( _pass ) < FTP_CRED_SIZE ) {
+//  }
+//  if( strlen( _pass ) > 0) { // && strlen( _pass ) < FTP_CRED_SIZE ) {
 //    strcpy( pass, _pass );
 	  this->pass = _pass;
-  }
+//  }
 //  strcpy(_welcomeMessage, welcomeMessage);
 
   this->welcomeMessage = _welcomeMessage;
@@ -648,7 +648,12 @@ bool FtpServer::processCommand()
 	DEBUG_PRINT("List of file!!");
 
     if( dataConnect()){
-      if( openDir( & dir ))
+      char path[ FTP_CWD_SIZE ];
+      char *dirName = NULL;
+      if( haveParameter() && makeExistsPath( path )) {
+        dirName = path;
+      }
+      if( openDir( & dir, dirName ))
       {
     	DEBUG_PRINT("Dir opened!!");
 
@@ -1055,7 +1060,7 @@ bool FtpServer::dataConnected()
   return false;
 }
  
-bool FtpServer::openDir( FTP_DIR * pdir )
+bool FtpServer::openDir( FTP_DIR * pdir, const char * dirName )
 {
   bool openD;
 #if (STORAGE_TYPE == STORAGE_LITTLEFS && (defined(ESP8266) || defined(ARDUINO_ARCH_RP2040)))
@@ -1070,12 +1075,14 @@ bool FtpServer::openDir( FTP_DIR * pdir )
     client.print( F("550 Can't open directory ") ); client.println( cwdName );
   }
 #elif STORAGE_TYPE == STORAGE_SD || STORAGE_TYPE == STORAGE_SD_MMC
-  if( cwdName == 0 ) {
+	  if( dirName) {
+	    dir = STORAGE_MANAGER.open( dirName );
+	  } else if( cwdName == 0 ) {
 	    dir = STORAGE_MANAGER.open( "/" );
 	  } else {
 	    dir = STORAGE_MANAGER.open( cwdName );
 	  }
-	  openD = true;
+	  openD = !!dir;
 	  if( ! openD ) {
 		client.print( F("550 Can't open directory ") ); client.println( cwdName );
 	  }
