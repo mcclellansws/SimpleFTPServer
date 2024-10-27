@@ -750,19 +750,49 @@ bool FtpServer::processCommand()
         client.print( F("450 Can't open ") ); client.print( parameter );
       } else if( dataConnect( false ))
       {
+        uint32_t size = fileSize( file );
+
     	  DEBUG_PRINT( F(" Sending ") ); DEBUG_PRINT( parameter ); DEBUG_PRINT( F(" size ") ); DEBUG_PRINTLN( long( fileSize( file ))  );
 
-		  if (FtpServer::_transferCallback) {
-			  FtpServer::_transferCallback(FTP_DOWNLOAD_START, parameter,  long( fileSize( file )));
-		  }
+        // Seek to the REST restart position if specified
+        if( restartPosition > 0 )
+        {
+          if( restartPosition > size )
+          {
+            client.println( F("550 Invalid restart position") );
+            return false;
+          }
+          fileSeek( file, restartPosition );
+          restartPosition = 0;
+        }
 
+        if (FtpServer::_transferCallback) {
+          FtpServer::_transferCallback(FTP_DOWNLOAD_START, parameter, size );
+        }
 
         client.print( F("150-Connected to port ") ); client.println( dataPort );
-        client.print( F("150 ") ); client.print( long( fileSize( file )) ); client.println( F(" bytes to download") );
+        client.print( F("150 ") ); client.print( size ); client.println( F(" bytes to download") );
         millisBeginTrans = millis();
         bytesTransfered = 0;
         transferStage = FTP_Retrieve;
       }
+    }
+  }
+  //
+  //  REST - Restart
+  //
+  else if( CommandIs( "REST" ))
+  {
+    if( haveParameter() )
+    {
+      restartPosition = atol( parameter );
+      client.print( F("250 Restart position accepted (") );
+      client.print( restartPosition );
+      client.println( F(")") );
+    }
+    else
+    {
+      client.println( F("501 Invalid parameter") );
     }
   }
   //
@@ -1152,6 +1182,7 @@ bool FtpServer::doRetrieve()
     file.close();
     return false;
   }
+
   int16_t nb = file.read( buf, FTP_BUF_SIZE );
   if( nb > 0 )
   {
@@ -2108,6 +2139,11 @@ uint32_t FtpServer::fileSize( FTP_FILE & file ) {
 #else
 	return file.fileSize();
 #endif
+}
+
+uint32_t FtpServer::fileSeek( FTP_FILE & file, uint32_t pos )
+{
+  return file.seek( pos );
 }
 
 #if (STORAGE_TYPE == STORAGE_SEEED_SD)

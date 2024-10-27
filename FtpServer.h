@@ -651,6 +651,7 @@ private:
 //  bool openFile( char path[ FTP_CWD_SIZE ], const char * readType );
 //  bool openFile( const char * path, const char * readType );
   uint32_t fileSize( FTP_FILE & file );
+  uint32_t fileSeek( FTP_FILE & file, uint32_t pos );
 
 #if STORAGE_TYPE == STORAGE_SPIFFS || STORAGE_TYPE == STORAGE_LITTLEFS
 #if ESP8266 || ARDUINO_ARCH_RP2040
@@ -755,6 +756,7 @@ private:
            millisEndConnection,       //
            millisBeginTrans,          // store time of beginning of a transaction
            bytesTransfered;           //
+  uint32_t restartPosition;           // used to restart partial file transfer
 };
 
 #endif // FTP_SERVER_H
