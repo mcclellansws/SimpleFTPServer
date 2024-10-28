@@ -747,7 +747,7 @@ bool FtpServer::processCommand()
     char path[ FTP_CWD_SIZE ];
     if( haveParameter() && makeExistsPath( path )) {
       if( ! openFile( path, FTP_FILE_READ )) {
-        client.print( F("450 Can't open ") ); client.print( parameter );
+        client.print( F("450 Can't open ") ); client.println( parameter );
       } else if( dataConnect( false ))
       {
         uint32_t size = fileSize( file );
@@ -759,7 +759,9 @@ bool FtpServer::processCommand()
         {
           if( restartPosition > size )
           {
-            client.println( F("550 Invalid restart position") );
+            client.print( F("550 Invalid restart position (") );
+            client.print( restartPosition ); client.print( F(" > ") ); client.print( size );
+            client.println( F(")") );
             return false;
           }
           fileSeek( file, restartPosition );

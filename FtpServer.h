@@ -677,8 +677,8 @@ private:
   };
 #endif
 #elif STORAGE_TYPE == STORAGE_SD || STORAGE_TYPE == STORAGE_SD_MMC
-  uint32_t capacity() { return true; };
-  uint32_t free() { return true; };
+  uint32_t capacity() { return STORAGE_MANAGER.totalBytes(); };
+  uint32_t free() { return STORAGE_MANAGER.totalBytes() - STORAGE_MANAGER.usedBytes(); };
 #elif STORAGE_TYPE == STORAGE_SEEED_SD
   uint32_t capacity() {
 	  return STORAGE_MANAGER.totalBytes() >> 1;
