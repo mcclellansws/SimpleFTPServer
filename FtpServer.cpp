@@ -169,6 +169,16 @@ void FtpServer::decodeHandleFTPReturn( uint8_t value, ftpCmd &cmdStage, ftpTrans
     dataConn = static_cast<ftpDataConn>((value >> 6) & 0x03);
 }
 
+bool FtpServer::isClientConnected()
+{
+  return cmdStage > FTP_Client;
+}
+
+const char * FtpServer::getLastCommand()
+{
+  return command;
+}
+
 uint8_t FtpServer::handleFTP() {
 #ifdef FTP_ADDITIONAL_DEBUG
 //    int8_t data0 = data.status();

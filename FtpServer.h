@@ -554,6 +554,8 @@ public:
   void    credentials( const char * _user, const char * _pass );
   uint8_t handleFTP();
   void    decodeHandleFTPReturn( uint8_t value, ftpCmd &cmdStage, ftpTransfer &transferStage, ftpDataConn &dataConn );
+  bool    isClientConnected();
+  const char * getLastCommand();
 
 	void setCallback(void (*_callbackParam)(FtpOperation ftpOperation, unsigned int freeSpace, unsigned int totalSpace) )
 	{
