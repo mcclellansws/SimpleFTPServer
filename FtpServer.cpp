@@ -155,6 +155,20 @@ void FtpServer::iniVariables()
   transferStage = FTP_Close;
 }
 
+uint8_t FtpServer::encodeHandleFTPReturn( ftpCmd cmdStage, ftpTransfer transferStage, ftpDataConn dataConn )
+{
+  return (cmdStage & 0x07) | 
+         ((transferStage & 0x07) << 3) |
+         ((dataConn & 0x03) << 6);
+}
+
+void FtpServer::decodeHandleFTPReturn( uint8_t value, ftpCmd &cmdStage, ftpTransfer &transferStage, ftpDataConn &dataConn )
+{
+    cmdStage = static_cast<ftpCmd>(value & 0x07);
+    transferStage = static_cast<ftpTransfer>((value >> 3) & 0x07);
+    dataConn = static_cast<ftpDataConn>((value >> 6) & 0x03);
+}
+
 uint8_t FtpServer::handleFTP() {
 #ifdef FTP_ADDITIONAL_DEBUG
 //    int8_t data0 = data.status();
@@ -288,7 +302,7 @@ uint8_t FtpServer::handleFTP() {
 		}
 #endif
 	}
-	return cmdStage | (transferStage << 3) | (dataConn << 6);
+	return encodeHandleFTPReturn(cmdStage, transferStage, dataConn);
 }
 
 void FtpServer::clientConnected()
