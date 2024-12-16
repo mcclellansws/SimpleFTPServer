@@ -567,10 +567,9 @@ bool FtpServer::processCommand()
     DEBUG_PRINT( int( dataIp[2]) ); DEBUG_PRINT( F(".") ); DEBUG_PRINT( int( dataIp[3]) );
     DEBUG_PRINT( F(":") ); DEBUG_PRINTLN( dataPort );
 
-    client.print( F("227 Entering Passive Mode") ); client.print( F(" (") );
-    client.print( int( dataIp[0]) ); client.print( F(",") ); client.print( int( dataIp[1]) ); client.print( F(",") );
-    client.print( int( dataIp[2]) ); client.print( F(",") ); client.print( int( dataIp[3]) ); client.print( F(",") );
-    client.print( ( dataPort >> 8 ) ); client.print( F(",") ); client.print( ( dataPort & 255 ) ); client.println( F(")") );
+    client.printf("227 Entering Passive Mode (%d,%d,%d,%d,%d,%d)\r\n",
+      dataIp[0], dataIp[1], dataIp[2], dataIp[3],
+      dataPort >> 8, dataPort & 255);
     dataConn = FTP_Pasive;
   }
   //
